@@ -51,78 +51,78 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="overlay">
-      <div className="settings-container" style={{ background: 'var(--sidebar-bg)', width: '90%', maxWidth: '800px', height: '80vh', display: 'flex', flexDirection: 'column', borderRadius: '16px', overflow: 'hidden', position: 'relative' }}>
-        <button className="btn" onClick={onClose} style={{ position: 'absolute', right: 20, top: 20, zIndex: 10 }}>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-100 flex items-center justify-center">
+      <div className="bg-sidebar w-11/12 max-w-200 h-[80vh] flex flex-col rounded-2xl overflow-hidden relative shadow-2xl">
+        <button className="absolute right-5 top-5 z-10 p-2 hover:bg-hover rounded-full transition-colors text-text-secondary" onClick={onClose} title="Close">
           <X size={24} />
         </button>
         
-        <div style={{ padding: '30px 40px', overflowY: 'auto', flex: 1 }}>
-          <h2 style={{ marginBottom: 30, textAlign: 'center' }}>设置</h2>
+        <div className="px-8 py-6 overflow-y-auto flex-1">
+          <h2 className="text-xl font-bold mb-6 text-center text-text-primary">设置</h2>
 
-          <section className="settings-section">
-            <h3>基础配置</h3>
-            <div className="form-group">
-              <label>Bilibili Cookie</label>
+          <section className="bg-card p-5 rounded-xl mb-5 border border-border">
+            <h3 className="text-base font-semibold mb-4 text-primary">基础配置</h3>
+            <div className="mb-4">
+              <label className="block mb-1.5 text-[0.85rem] font-medium text-text-primary">Bilibili Cookie</label>
               <textarea
-                className="form-control"
+                className="w-full p-2.5 bg-black/10 border border-border rounded-lg text-text-primary text-sm outline-none focus:border-primary transition-colors"
                 value={settings.cookie}
                 onChange={(e) => setSettings({ ...settings, cookie: e.target.value })}
-                rows={3}
+                rows={2}
                 placeholder="SESSDATA=..."
               />
             </div>
-            <div className="form-group">
-              <label>获取间隔 (分钟)</label>
+            <div className="mb-4">
+              <label className="block mb-1.5 text-[0.85rem] font-medium text-text-primary">获取间隔 (分钟)</label>
               <input
                 type="number"
-                className="form-control"
+                className="w-full p-2.5 bg-black/10 border border-border rounded-lg text-text-primary text-sm outline-none focus:border-primary transition-colors"
                 value={settings.refreshInterval}
                 onChange={(e) => setSettings({ ...settings, refreshInterval: parseInt(e.target.value) || 1 })}
               />
             </div>
-            <div className="form-group" style={{ display: 'flex', alignItems: 'center' }}>
+            <div className="mb-4 flex items-center">
               <input
                 type="checkbox"
                 id="notify-toggle"
                 checked={settings.enableNotifications}
                 onChange={(e) => setSettings({ ...settings, enableNotifications: e.target.checked })}
-                style={{ marginRight: 10 }}
+                className="mr-2.5 w-3.5 h-3.5 accent-primary"
               />
-              <label htmlFor="notify-toggle" style={{ margin: 0 }}>开启浏览器消息通知</label>
+              <label htmlFor="notify-toggle" className="text-[0.85rem] cursor-pointer text-text-primary">开启浏览器消息通知</label>
             </div>
-            <button className="btn btn-primary" onClick={handleSaveSettings}>
-              <Save size={18} style={{ marginRight: 8, verticalAlign: 'middle' }} />
+            <button className="px-4 py-2 bg-primary text-white rounded-lg font-semibold text-sm transition-all hover:opacity-90 active:scale-95 flex items-center gap-1.5" onClick={handleSaveSettings}>
+              <Save size={16} />
               保存配置
             </button>
           </section>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-            <section className="settings-section">
-              <h3>搜索并添加 UP</h3>
-              <div className="form-group" style={{ display: 'flex', gap: 10 }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <section className="bg-card p-5 rounded-xl mb-5 border border-border">
+              <h3 className="text-base font-semibold mb-4 text-primary">搜索并添加 UP</h3>
+              <div className="mb-4 flex gap-2">
                 <input
                   type="text"
-                  className="form-control"
+                  className="flex-1 p-2.5 bg-black/10 border border-border rounded-lg text-text-primary text-sm outline-none focus:border-primary transition-colors"
                   placeholder="输入昵称关键词"
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   disabled={loading}
                 />
-                <button className="btn btn-secondary" onClick={handleSearch} disabled={loading || !keyword}>
-                  {loading ? <Loader2 size={18} className="spin" /> : <Search size={18} />}
+                <button className="p-2.5 bg-hover text-text-primary rounded-lg transition-all hover:opacity-90 active:scale-95" onClick={handleSearch} disabled={loading || !keyword}>
+                  {loading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
                 </button>
               </div>
-              <div className="search-results" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              <div className="max-h-60 overflow-y-auto">
                 {searchResults.map(up => (
-                  <div key={up.mid} className="up-item" style={{ background: 'rgba(0,0,0,0.1)', cursor: 'default' }}>
-                    <img src={up.face} className="up-face" />
-                    <div style={{ flex: 1 }}>
-                      <div className="up-name">{up.name}</div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>MID: {up.mid}</div>
+                  <div key={up.mid} className="flex items-center p-2.5 mb-1.5 rounded-lg bg-black/5 border border-transparent">
+                    <img src={up.face} className="w-8 h-8 rounded-full mr-2.5 object-cover" />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-[0.85rem] truncate text-text-primary">{up.name}</div>
+                      <div className="text-[0.7rem] text-text-secondary">MID: {up.mid}</div>
                     </div>
-                    <button className="btn btn-primary" style={{ padding: '4px 12px', fontSize: '0.8rem' }} onClick={() => handleAddUP(up)}>
+                    <button className="px-2.5 py-1 bg-primary text-white rounded-md text-[0.75rem] ml-1.5 hover:opacity-90 transition-opacity" onClick={() => handleAddUP(up)}>
                       添加
                     </button>
                   </div>
@@ -130,19 +130,19 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onClose }) => {
               </div>
             </section>
 
-            <section className="settings-section">
-              <h3>已添加列表</h3>
-              <div className="up-list" style={{ padding: 0, maxHeight: '380px', overflowY: 'auto' }}>
-                {ups.length === 0 && <div style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: 20 }}>暂无 UP</div>}
+            <section className="bg-card p-5 rounded-xl mb-5 border border-border">
+              <h3 className="text-base font-semibold mb-4 text-primary">已添加列表</h3>
+              <div className="max-h-75 overflow-y-auto">
+                {ups.length === 0 && <div className="text-text-secondary text-center py-4 text-sm">暂无 UP</div>}
                 {ups.map(up => (
-                  <div key={up.mid} className="up-item" style={{ cursor: 'default' }}>
-                    <img src={up.face} className="up-face" />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div className="up-name" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{up.name}</div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>MID: {up.mid}</div>
+                  <div key={up.mid} className="flex items-center p-2.5 mb-1.5 rounded-lg transition-colors hover:bg-hover">
+                    <img src={up.face} className="w-8 h-8 rounded-full mr-2.5 object-cover" />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-[0.85rem] truncate text-text-primary">{up.name}</div>
+                      <div className="text-[0.7rem] text-text-secondary">MID: {up.mid}</div>
                     </div>
-                    <button onClick={() => handleRemoveUP(up.mid)} style={{ color: '#ff4d4f', flexShrink: 0 }}>
-                      <Trash2 size={18} />
+                    <button onClick={() => handleRemoveUP(up.mid)} className="text-red-500 hover:text-red-600 transition-colors shrink-0 ml-1.5">
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 ))}

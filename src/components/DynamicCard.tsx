@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import dayjs from 'dayjs';
+import React, { useState } from 'react';
 import type { DynamicContent } from '../types';
-import CommentSection from './CommentSection';
+import dayjs from 'dayjs';
 import { MessageSquare } from 'lucide-react';
+import CommentSection from './CommentSection';
+import ImagePreview from './ImagePreview';
 
 interface DynamicCardProps {
   dynamic: DynamicContent;
@@ -10,38 +11,64 @@ interface DynamicCardProps {
 
 const DynamicCard: React.FC<DynamicCardProps> = ({ dynamic }) => {
   const [showComments, setShowComments] = useState(false);
-  const formattedTime = dayjs(dynamic.timestamp * 1000).format('YYYY-MM-DD HH:mm:ss');
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [currentImgIndex, setCurrentImgIndex] = useState(0);
+
+  const images = dynamic.cover ? [dynamic.cover, ...dynamic.images] : dynamic.images;
+  const formattedTime = dayjs(dynamic.timestamp * 1000).format('YYYY年MM月DD日 HH时mm分ss秒');
+
+  const openPreview = (e: React.MouseEvent, index: number) => {
+    e.stopPropagation();
+    setCurrentImgIndex(index);
+    setIsPreviewOpen(true);
+  };
 
   return (
-    <div className="dynamic-card">
-      <div className="dynamic-card-top" style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <span>{formattedTime}</span>
-        <button onClick={() => setShowComments(!showComments)} style={{ display: 'flex', alignItems: 'center', color: 'var(--text-secondary)' }}>
-          <MessageSquare size={14} style={{ marginRight: 4 }} />
+    <div className="bg-card border border-border rounded-xl mb-4 overflow-hidden transition-transform duration-200 hover:-translate-y-0.5 hover:border-primary/30 shadow-sm">
+      <div className="px-4 py-2 border-b border-border text-[0.75rem] text-text-secondary flex justify-between bg-black/5 dark:bg-black/10">
+        <span className="">{formattedTime}</span>
+        <button onClick={() => setShowComments(!showComments)} className="flex items-center text-text-secondary hover:text-primary transition-colors">
+          <MessageSquare size={12} className="mr-1" />
           评论
         </button>
       </div>
-      <div className="dynamic-card-body" onClick={() => window.open(dynamic.jumpUrl, '_blank')} style={{ cursor: 'pointer' }}>
-        {(dynamic.cover || dynamic.images.length > 0) && (
-          <div className="dynamic-images">
-            {dynamic.cover ? (
-              <img src={dynamic.cover} alt="cover" className="dynamic-img" />
-            ) : (
-              <img src={dynamic.images[0]} alt="img" className="dynamic-img" />
-            )}
-            {dynamic.images.length > 1 && (
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'right' }}>
-                共 {dynamic.images.length} 张图
-              </div>
-            )}
+      <div className="flex p-4">
+        {images.length > 0 && (
+          <div className="w-36 mr-4 shrink-0">
+            <div 
+              className="relative group cursor-zoom-in aspect-video rounded-md overflow-hidden bg-black/5 dark:bg-black/20"
+              onClick={(e) => openPreview(e, 0)}
+            >
+              <img 
+                src={images[0]} 
+                alt="preview" 
+                className="w-full h-full object-cover transition-opacity group-hover:opacity-80" 
+              />
+              {images.length > 1 && (
+                <div className="absolute right-1 bottom-1 px-1 py-0.5 bg-black/60 text-white text-[0.6rem] rounded backdrop-blur-sm">
+                  {images.length}张
+                </div>
+              )}
+            </div>
           </div>
         )}
-        <div className="dynamic-content">
-          {dynamic.title && <h3 className="dynamic-title">{dynamic.title}</h3>}
-          <div className="dynamic-desc">{dynamic.description}</div>
+        <div className="flex-1 min-w-0">
+          <h3 
+            className="text-base font-semibold mb-2 text-text-primary line-clamp-1 cursor-pointer hover:text-primary transition-colors"
+            onClick={() => window.open(dynamic.jumpUrl, '_blank')}
+          >
+            {dynamic.title || dynamic.description}
+          </h3>
         </div>
       </div>
       {showComments && <CommentSection oid={dynamic.commentOid} type={dynamic.commentType} />}
+
+      <ImagePreview 
+        images={images} 
+        isOpen={isPreviewOpen} 
+        initialIndex={currentImgIndex}
+        onClose={() => setIsPreviewOpen(false)} 
+      />
     </div>
   );
 };

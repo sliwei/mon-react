@@ -15,6 +15,20 @@ function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [lastCheckedMap, setLastCheckedMap] = useState<Record<string, number>>({});
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    return (localStorage.getItem('theme') as 'light' | 'dark') || 'dark';
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
 
   const refreshData = useCallback(async (mid: string) => {
     if (!mid || !settings.cookie) return;
@@ -41,7 +55,11 @@ function App() {
 
   useEffect(() => {
     if (activeMid) {
-      refreshData(activeMid);
+      // Use a microtask to avoid synchronous setState warning
+      const task = async () => {
+        await refreshData(activeMid);
+      };
+      task();
     }
   }, [activeMid, refreshData]);
 
@@ -68,39 +86,41 @@ function App() {
   const activeUP = ups.find(u => u.mid === activeMid);
 
   return (
-    <div className="app-container">
+    <div className="flex h-screen w-screen bg-bg text-text-primary overflow-hidden">
       <Sidebar
         ups={ups}
         activeMid={activeMid}
         onSelectUP={setActiveMid}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onAddUP={() => setIsSettingsOpen(true)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
-      <main className="main-content">
-        <header className="top-bar">
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <h2 style={{ fontSize: '1.2rem' }}>
+      <main className="flex-1 flex flex-col bg-main">
+        <header className="h-14 px-5 flex justify-between items-center bg-glass backdrop-blur-md border-b border-border z-10">
+          <div className="flex items-center">
+            <h2 className="text-[1.1rem] font-bold">
               {activeUP ? `${activeUP.name} 的动态` : '请选择或添加 UP 主'}
             </h2>
-            {loading && <RefreshCw size={18} className="spin" style={{ marginLeft: 12 }} />}
+            {loading && <RefreshCw size={16} className="animate-spin ml-2.5" />}
           </div>
-          <div style={{ display: 'flex', gap: 16 }}>
-            {settings.enableNotifications && <Bell size={20} color="var(--primary-color)" />}
+          <div className="flex gap-3">
+            {settings.enableNotifications && <Bell size={18} className="text-primary" />}
           </div>
         </header>
 
-        <section className="content-area">
+        <section className="flex-1 overflow-y-auto p-4">
           {activeMid ? (
             dynamics.length > 0 ? (
               dynamics.map(dyn => <DynamicCard key={dyn.id} dynamic={dyn} />)
             ) : (
-              <div style={{ textAlign: 'center', marginTop: 100, color: 'var(--text-secondary)' }}>
+              <div className="text-center mt-20 text-text-secondary text-sm">
                 {loading ? '正在获取动态...' : '暂无动态或获取失败'}
               </div>
             )
           ) : (
-            <div style={{ textAlign: 'center', marginTop: 100, color: 'var(--text-secondary)' }}>
+            <div className="text-center mt-20 text-text-secondary text-sm">
               请在左侧选择一个 UP 主，或点击设置添加
             </div>
           )}
@@ -114,11 +134,6 @@ function App() {
           setSettings(getSettings());
         }} />
       )}
-
-      <style>{`
-        .spin { animation: rotation 2s infinite linear; }
-        @keyframes rotation { from { transform: rotate(0deg); } to { transform: rotate(359deg); } }
-      `}</style>
     </div>
   );
 }
