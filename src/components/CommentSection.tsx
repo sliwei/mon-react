@@ -1,42 +1,25 @@
 import type { FC } from 'react';
-import { useState, useEffect } from 'react';
-import { fetchComments, fetchSubReplies } from '../lib/api';
+
 import type { Comment as BiliComment } from '../types';
 import dayjs from 'dayjs';
-import { getSettings } from '../lib/storage';
 
 interface CommentSectionProps {
   oid: string;
   type: number;
+  comments?: BiliComment[];
 }
 
 const CommentItem: FC<{ 
   comment: BiliComment; 
-  oid: string; 
-  type: number; 
   isSub?: boolean;
-}> = ({ comment, oid, type, isSub }) => {
-  const [subReplies, setSubReplies] = useState<BiliComment[]>(comment.replies || []);
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const { cookie } = getSettings();
-
-  const handleLoadMore = async () => {
-    setLoading(true);
-    // If it's the first load of more replies, we might want to skip the ones already pre-fetched
-    // Bilibili API usually returns the first 3 sub-replies in the main response.
-    // However, calling /reply/reply with pn=1 returns the first few.
-    // For simplicity, we'll just fetch next page if we have a lot, or just fetch all if it's small.
-    const nextPage = page + 1;
-    const data = await fetchSubReplies(oid, type, comment.rootId || comment.id, cookie, 10, page);
-    
-    // Filter out duplicates if any (by id)
-    const newReplies = data.filter(r => !subReplies.find(sr => sr.id === r.id));
-    setSubReplies([...subReplies, ...newReplies]);
-    setPage(nextPage);
-    setLoading(false);
-  };
-
+}> = ({ comment, isSub }) => {
+  // We rely on pre-fetched replies. 
+  // If we want to support "Load More" essentially we need the polling service to fetch deeper,
+  // or we treat "Load More" as an exception. 
+  // Given the strict "UI does not call API" rule, we will only show what is in `comment.replies`.
+  // The polling service attempts to fetch sub-replies.
+  
+  const subReplies = comment.replies || [];
   const hasMore = comment.replyCount ? subReplies.length < comment.replyCount : false;
 
   return (
@@ -59,47 +42,28 @@ const CommentItem: FC<{
         {subReplies.length > 0 && (
           <div className="mt-1.5">
             {subReplies.map(reply => (
-              <CommentItem key={reply.id} comment={reply} oid={oid} type={type} isSub={true} />
+              <CommentItem key={reply.id} comment={reply} isSub={true} />
             ))}
           </div>
         )}
 
         {!isSub && hasMore && (
-          <button 
-            onClick={handleLoadMore}
-            disabled={loading}
-            className="text-primary text-[0.75rem] py-0.5 mt-0.5 hover:opacity-80 disabled:opacity-60"
-          >
-            {loading ? '正在加载...' : `共 ${comment.replyCount} 条回复，点击查看更多`}
-          </button>
+           <div className="text-[0.75rem] text-text-secondary mt-1">
+             (还有 {comment.replyCount! - subReplies.length} 条回复，请等待轮询更新或调整设置)
+           </div>
         )}
       </div>
     </div>
   );
 };
 
-const CommentSection: FC<CommentSectionProps> = ({ oid, type }) => {
-  const [comments, setComments] = useState<BiliComment[]>([]);
-  const [loading, setLoading] = useState(false);
-  const { cookie } = getSettings();
-
-  useEffect(() => {
-    const loadComments = async () => {
-      setLoading(true);
-      const data = await fetchComments(oid, type, cookie);
-      setComments(data);
-      setLoading(false);
-    };
-    loadComments();
-  }, [oid, type, cookie]);
-
-  if (loading) return <div className="p-2 text-[0.75rem] text-text-secondary">正在加载评论...</div>;
-  if (comments.length === 0) return <div className="p-2 text-[0.75rem] text-text-secondary">暂无评论</div>;
+const CommentSection: FC<CommentSectionProps> = ({ comments }) => {
+  if (!comments || comments.length === 0) return <div className="p-2 text-[0.75rem] text-text-secondary">暂无评论或数据未更新</div>;
 
   return (
     <div className="px-4 pb-4 border-t border-border bg-black/5 dark:bg-black/10">
       {comments.map(comment => (
-        <CommentItem key={comment.id} comment={comment} oid={oid} type={type} />
+        <CommentItem key={comment.id} comment={comment} />
       ))}
     </div>
   );

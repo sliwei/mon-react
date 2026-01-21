@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { md5 } from 'js-md5';
 import type { DynamicContent, Comment, UP } from '../types';
+import { getSettings } from './storage';
+import * as mock from './mock';
 
 const mixinKeyEncTab = [
   46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49,
@@ -61,6 +63,7 @@ interface SearchResult {
 }
 
 export async function searchUP(keyword: string, cookie: string): Promise<UP[]> {
+  if (getSettings().useMock) return mock.mockSearchUP(keyword);
   if (!wbiKeys || cookie !== lastCookie) await refreshWbiKeys(cookie);
 
   const params = {
@@ -95,6 +98,7 @@ export async function searchUP(keyword: string, cookie: string): Promise<UP[]> {
 }
 
 export async function fetchUPInfo(mid: string, cookie: string): Promise<UP | null> {
+  if (getSettings().useMock) return mock.mockFetchUPInfo(mid);
   try {
     const res = await axios.get('/bili/x/space/wbi/acc/info', {
       params: { mid },
@@ -135,6 +139,7 @@ interface DynamicItem {
 }
 
 export async function fetchDynamics(mid: string, cookie: string): Promise<DynamicContent[]> {
+  if (getSettings().useMock) return mock.mockFetchDynamics(mid);
   if (!wbiKeys || cookie !== lastCookie) await refreshWbiKeys(cookie);
   
   const params = {
@@ -214,6 +219,7 @@ interface ReplyItem {
 }
 
 export async function fetchComments(oid: string, type: number, cookie: string): Promise<Comment[]> {
+  if (getSettings().useMock) return mock.mockFetchComments(oid);
   const params = {
     oid,
     type,

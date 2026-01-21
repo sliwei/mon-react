@@ -8,6 +8,13 @@ export interface Settings {
   cookie: string;
   refreshInterval: number; // in minutes
   enableNotifications: boolean;
+  useMock: boolean;
+  // Polling settings
+  enableDynamicPolling: boolean;
+  dynamicPollingInterval: number; // in minutes
+  enableCommentPolling: boolean;
+  commentPollingInterval: number; // in minutes
+  commentTimeRange: number; // in hours, determines how far back to fetch comments for dynamics
 }
 
 export interface DynamicContent {
@@ -21,6 +28,7 @@ export interface DynamicContent {
   jumpUrl: string;
   commentOid: string;
   commentType: number;
+  comments?: Comment[];
 }
 
 export interface Comment {

@@ -61,7 +61,7 @@ const DynamicCard: React.FC<DynamicCardProps> = ({ dynamic }) => {
           </h3>
         </div>
       </div>
-      {showComments && <CommentSection oid={dynamic.commentOid} type={dynamic.commentType} />}
+      {showComments && <CommentSection oid={dynamic.commentOid} type={dynamic.commentType} comments={dynamic.comments} />}
 
       <ImagePreview 
         images={images} 
