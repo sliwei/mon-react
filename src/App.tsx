@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Sidebar from './components/Sidebar';
 import SettingsPage from './components/SettingsPage';
 import DynamicCard from './components/DynamicCard';
-import type { UP, Settings, DynamicContent } from './types';
-import { getSettings, getUPs, getStoredDynamics } from './lib/storage';
+import type { UP, Settings, DynamicContent, Comment } from './types';
+import { getSettings, getUPs, getStoredDynamics, saveStoredDynamics, markAsRead } from './lib/storage';
 import { pollingService } from './lib/polling';
 import { Bell, RefreshCw } from 'lucide-react';
 
@@ -31,7 +31,7 @@ function App() {
     pollingService.start();
 
     const unsubscribe = pollingService.subscribe(() => {
-      setDynamicsMap(getStoredDynamics());
+      setDynamicsMap(getStoredDynamics()); 
     });
 
     return () => {
@@ -47,13 +47,65 @@ function App() {
     pollingService.forceRefreshDynamics();
   };
 
+  const handleMarkRead = (id: string) => {
+    markAsRead(id);
+    
+    // Optimistic update of local state
+    setDynamicsMap(prev => {
+        const next = { ...prev };
+        for (const mid in next) {
+            next[mid] = next[mid].map(d => {
+                if (d.id === id) {
+                    return { ...d, isRead: true };
+                }
+                if (d.comments) {
+                    const updateComments = (comments: Comment[]): Comment[] => {
+                         return comments.map(c => {
+                             if (c.id === id) return { ...c, isRead: true };
+                             if (c.replies) return { ...c, replies: updateComments(c.replies) };
+                             return c;
+                         });
+                    };
+                    return { ...d, comments: updateComments(d.comments) };
+                }
+                return d;
+            });
+        }
+        // Persist to storage to ensure polling service picks up the change if it reads existing data
+        saveStoredDynamics(next);
+        return next;
+    });
+  };
+
   const activeUP = ups.find(u => u.mid === activeMid);
+
+  const unreadCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    ups.forEach(up => {
+        let count = 0;
+        const dynamics = dynamicsMap[up.mid] || [];
+        dynamics.forEach(d => {
+            if (!d.isRead) count++;
+            
+            const countComments = (comments: Comment[]) => {
+                comments.forEach(c => {
+                    if (c.userName === up.name && !c.isRead) count++;
+                    if (c.replies) countComments(c.replies);
+                });
+            };
+            if (d.comments) countComments(d.comments);
+        });
+        counts[up.mid] = count;
+    });
+    return counts;
+  }, [dynamicsMap, ups]);
 
   return (
     <div className="flex h-screen w-screen bg-bg text-text-primary overflow-hidden">
       <Sidebar
         ups={ups}
         activeMid={activeMid}
+        unreadCounts={unreadCounts}
         onSelectUP={setActiveMid}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onAddUP={() => setIsSettingsOpen(true)}
@@ -98,7 +150,14 @@ function App() {
                 className="w-full"
               >
                 {upDynamics.length > 0 ? (
-                  upDynamics.map(dyn => <DynamicCard key={dyn.id} dynamic={dyn} />)
+                  upDynamics.map(dyn => (
+                    <DynamicCard 
+                        key={dyn.id} 
+                        dynamic={dyn} 
+                        upName={up.name}
+                        onMarkRead={handleMarkRead}
+                    />
+                  ))
                 ) : (
                   <div className="text-center mt-20 text-text-secondary text-sm">
                     暂无动态，请检查设置并确保轮询已开启

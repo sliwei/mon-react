@@ -267,7 +267,7 @@ export async function fetchComments(oid: string, type: number, cookie: string): 
   }
 }
 
-export async function fetchSubReplies(oid: string, type: number, root: string, cookie: string, ps = 10, pn = 1): Promise<Comment[]> {
+export async function fetchSubReplies(oid: string, type: number, root: string, cookie: string, ps = 50, pn = 1): Promise<Comment[]> {
   try {
     const res = await axios.get('/bili/x/v2/reply/reply', {
       params: {

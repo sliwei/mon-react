@@ -5,6 +5,7 @@ import type { UP } from '../types';
 interface SidebarProps {
   ups: UP[];
   activeMid: string | null;
+  unreadCounts: Record<string, number>;
   onSelectUP: (mid: string) => void;
   onOpenSettings: () => void;
   onAddUP: () => void;
@@ -15,6 +16,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ 
   ups, 
   activeMid, 
+  unreadCounts,
   onSelectUP, 
   onOpenSettings, 
   onAddUP,
@@ -38,13 +40,20 @@ const Sidebar: React.FC<SidebarProps> = ({
         {ups.map((up) => (
           <div
             key={up.mid}
-            className={`flex items-center p-2 mb-1.5 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-hover ${
+            className={`flex items-center justify-between p-2 mb-1.5 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-hover ${
               activeMid === up.mid ? 'bg-primary/10 border border-primary/40' : 'border border-transparent'
             }`}
             onClick={() => onSelectUP(up.mid)}
           >
-            <img src={up.face} alt={up.name} className="w-8 h-8 rounded-full mr-2.5 object-cover" />
-            <span className="font-medium text-[0.9rem] truncate">{up.name}</span>
+            <div className="flex items-center overflow-hidden">
+               <img src={up.face} alt={up.name} className="w-8 h-8 rounded-full mr-2.5 object-cover shrink-0" />
+               <span className="font-medium text-[0.9rem] truncate">{up.name}</span>
+            </div>
+            {unreadCounts[up.mid] > 0 && (
+              <span className="bg-red-500 text-white text-[0.65rem] font-bold px-1.5 py-0.5 rounded-full min-w-4.5 text-center ml-2">
+                {unreadCounts[up.mid] > 99 ? '99+' : unreadCounts[up.mid]}
+              </span>
+            )}
           </div>
         ))}
         <button 

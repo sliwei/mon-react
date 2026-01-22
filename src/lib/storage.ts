@@ -4,6 +4,7 @@ const STORAGE_KEYS = {
   SETTINGS: 'bili_monitor_settings',
   UPS: 'bili_monitor_ups',
   DYNAMICS: 'bili_monitor_dynamics',
+  READ_IDS: 'bili_monitor_read_ids',
 };
 
 const DEFAULT_SETTINGS: Settings = {
@@ -55,4 +56,25 @@ export const getStoredDynamics = (): Record<string, DynamicContent[]> => {
 
 export const saveStoredDynamics = (dynamics: Record<string, DynamicContent[]>) => {
   localStorage.setItem(STORAGE_KEYS.DYNAMICS, JSON.stringify(dynamics));
+};
+
+export const getReadIds = (): string[] => {
+  const saved = localStorage.getItem(STORAGE_KEYS.READ_IDS);
+  return saved ? JSON.parse(saved) : [];
+};
+
+export const saveReadIds = (ids: string[]) => {
+  localStorage.setItem(STORAGE_KEYS.READ_IDS, JSON.stringify(ids));
+};
+
+export const markAsRead = (id: string) => {
+  const ids = getReadIds();
+  if (!ids.includes(id)) {
+    saveReadIds([...ids, id]);
+  }
+};
+
+export const isMarkedRead = (id: string): boolean => {
+  const ids = getReadIds();
+  return ids.includes(id);
 };

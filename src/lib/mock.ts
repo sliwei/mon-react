@@ -60,7 +60,7 @@ export const mockFetchDynamics = async (mid: string): Promise<DynamicContent[]> 
     dynamics = [newDyn, ...dynamics].slice(0, 20); // Keep max 20
     localStorage.setItem(`${MOCK_STORAGE_KEY}_${mid}`, JSON.stringify(dynamics));
   }
-
+  console.log('mockFetchDynamics', dynamics);
   return dynamics;
 };
 

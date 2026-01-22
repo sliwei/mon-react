@@ -1,36 +1,79 @@
 import React, { useState } from 'react';
-import type { DynamicContent } from '../types';
+import type { DynamicContent, Comment } from '../types';
 import dayjs from 'dayjs';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, CheckCircle } from 'lucide-react';
 import CommentSection from './CommentSection';
 import ImagePreview from './ImagePreview';
 
 interface DynamicCardProps {
   dynamic: DynamicContent;
+  upName?: string;
+  onMarkRead?: (id: string, isDynamic?: boolean) => void;
 }
 
-const DynamicCard: React.FC<DynamicCardProps> = ({ dynamic }) => {
+const DynamicCard: React.FC<DynamicCardProps> = ({ dynamic, upName, onMarkRead }) => {
   const [showComments, setShowComments] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
 
   const images = dynamic.cover ? [dynamic.cover, ...dynamic.images] : dynamic.images;
   const formattedTime = dayjs(dynamic.timestamp * 1000).format('YYYY年MM月DD日 HH时mm分ss秒');
+  
+  // Calculate unread UP comments
+  const countUnread = (comments: Comment[]): number => {
+      let count = 0;
+      comments?.forEach(c => {
+          if (upName && c.userName === upName && !c.isRead) count++;
+          if (c.replies) count += countUnread(c.replies);
+      });
+      return count;
+  };
+  const unreadCommentCount = countUnread(dynamic.comments || []);
+  const isDynamicUnread = !dynamic.isRead;
 
   const openPreview = (e: React.MouseEvent, index: number) => {
     e.stopPropagation();
     setCurrentImgIndex(index);
     setIsPreviewOpen(true);
   };
+  
+  const handleMarkRead = () => {
+      if (onMarkRead) onMarkRead(dynamic.id, true);
+  };
+
+  const handleTitleClick = () => {
+      window.open(dynamic.jumpUrl, '_blank');
+      handleMarkRead();
+  };
 
   return (
-    <div className="bg-card border border-border rounded-xl mb-4 overflow-hidden transition-transform duration-200 hover:-translate-y-0.5 hover:border-primary/30 shadow-sm">
+    <div className={`bg-card border rounded-xl mb-4 overflow-hidden transition-all duration-200 hover:-translate-y-0.5 shadow-sm ${
+        isDynamicUnread ? 'border-primary/50 ring-1 ring-primary/20' : 'border-border'
+    }`}>
       <div className="px-4 py-2 border-b border-border text-[0.75rem] text-text-secondary flex justify-between bg-black/5 dark:bg-black/10">
-        <span className="">{formattedTime}</span>
-        <button onClick={() => setShowComments(!showComments)} className="flex items-center text-text-secondary hover:text-primary transition-colors">
-          <MessageSquare size={12} className="mr-1" />
-          评论
-        </button>
+        <div className="flex items-center gap-2">
+            <span>{formattedTime}</span>
+            {isDynamicUnread && (
+                 <span className="text-primary font-bold text-[0.7rem] bg-primary/10 px-1.5 rounded">NEW</span>
+            )}
+        </div>
+        <div className="flex items-center gap-3">
+             {isDynamicUnread && onMarkRead && (
+                <button onClick={handleMarkRead} className="flex items-center hover:text-primary! transition-colors cursor-pointer" title="标记动态为已读">
+                    <CheckCircle size={12} className="mr-1" />
+                    已读
+                </button>
+            )}
+            <button onClick={() => setShowComments(!showComments)} className="flex items-center text-text-secondary hover:text-primary! transition-colors relative">
+              <MessageSquare size={12} className="mr-1" />
+              评论
+              {unreadCommentCount > 0 && (
+                  <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[0.6rem] px-1 rounded-full min-w-3.5 text-center h-3.5 leading-tight flex items-center justify-center">
+                      {unreadCommentCount}
+                  </span>
+              )}
+            </button>
+        </div>
       </div>
       <div className="flex p-4">
         {images.length > 0 && (
@@ -54,14 +97,22 @@ const DynamicCard: React.FC<DynamicCardProps> = ({ dynamic }) => {
         )}
         <div className="flex-1 min-w-0">
           <h3 
-            className="text-base font-semibold mb-2 text-text-primary line-clamp-1 cursor-pointer hover:text-primary transition-colors"
-            onClick={() => window.open(dynamic.jumpUrl, '_blank')}
+            className={`text-base font-semibold mb-2 text-text-primary line-clamp-1 cursor-pointer hover:text-primary transition-colors ${isDynamicUnread ? 'text-primary' : ''}`}
+            onClick={handleTitleClick}
           >
             {dynamic.title || dynamic.description}
           </h3>
         </div>
       </div>
-      {showComments && <CommentSection oid={dynamic.commentOid} type={dynamic.commentType} comments={dynamic.comments} />}
+      {showComments && (
+        <CommentSection 
+            oid={dynamic.commentOid} 
+            type={dynamic.commentType} 
+            comments={dynamic.comments} 
+            upName={upName}
+            onMarkRead={onMarkRead}
+        />
+      )}
 
       <ImagePreview 
         images={images} 

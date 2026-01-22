@@ -17,6 +17,7 @@ export interface Settings {
   commentTimeRange: number; // in hours, determines how far back to fetch comments for dynamics
 }
 
+
 export interface DynamicContent {
   id: string;
   mid: string;
@@ -29,6 +30,7 @@ export interface DynamicContent {
   commentOid: string;
   commentType: number;
   comments?: Comment[];
+  isRead?: boolean;
 }
 
 export interface Comment {
@@ -41,4 +43,5 @@ export interface Comment {
   replyCount?: number;
   rootId?: string; // used for fetching more sub-replies
   replies?: Comment[];
+  isRead?: boolean;
 }
