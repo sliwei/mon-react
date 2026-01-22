@@ -6,6 +6,7 @@ import type { UP, Settings, DynamicContent, Comment } from './types';
 import { getSettings, getUPs, getStoredDynamics, saveStoredDynamics, markAsRead } from './lib/storage';
 import { pollingService } from './lib/polling';
 import { Bell, RefreshCw } from 'lucide-react';
+import { Toaster } from 'sonner'
 
 function App() {
   const [ups, setUps] = useState<UP[]>(getUPs());
@@ -61,11 +62,11 @@ function App() {
                 }
                 if (d.comments) {
                     const updateComments = (comments: Comment[]): Comment[] => {
-                         return comments.map(c => {
-                             if (c.id === id) return { ...c, isRead: true };
-                             if (c.replies) return { ...c, replies: updateComments(c.replies) };
-                             return c;
-                         });
+                        return comments.map(c => {
+                            if (c.id === id) return { ...c, isRead: true };
+                            if (c.replies) return { ...c, replies: updateComments(c.replies) };
+                            return c;
+                        });
                     };
                     return { ...d, comments: updateComments(d.comments) };
                 }
@@ -102,94 +103,97 @@ function App() {
   }, [dynamicsMap, ups]);
 
   return (
-    <div className="flex h-screen w-screen bg-bg text-text-primary overflow-hidden">
-      <Sidebar
-        ups={ups}
-        activeMid={activeMid}
-        unreadCounts={unreadCounts}
-        onSelectUP={setActiveMid}
-        onOpenSettings={() => setIsSettingsOpen(true)}
-        onAddUP={() => setIsSettingsOpen(true)}
-        theme={theme}
-        onToggleTheme={toggleTheme}
-      />
+    <>
+      <div className="flex h-screen w-screen bg-bg text-text-primary overflow-hidden">
+        <Sidebar
+          ups={ups}
+          activeMid={activeMid}
+          unreadCounts={unreadCounts}
+          onSelectUP={setActiveMid}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+          onAddUP={() => setIsSettingsOpen(true)}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+        />
 
-      <main className="flex-1 flex flex-col bg-main">
-        <header className="h-14 px-5 flex justify-between items-center bg-glass backdrop-blur-md border-b border-border z-10">
-          <div className="flex items-center">
-            <h2 className="text-[1.1rem] font-bold">
-              {activeUP ? `${activeUP.name} 的动态` : '请选择或添加 UP 主'}
-            </h2>
-            <button 
-              onClick={handleManualRefresh}
-              className="ml-3 p-1.5 rounded-full hover:bg-hover active:scale-95 transition"
-              title="手动刷新动态"
-            >
-              <RefreshCw size={16} />
-            </button>
-            <label className="ml-4 flex items-center gap-1.5 text-sm cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={onlyShowUP}
-                onChange={(e) => setOnlyShowUP(e.target.checked)}
-                className="w-3.5 h-3.5 accent-primary cursor-pointer"
-              />
-              <span className="text-text-secondary">只看UP</span>
-            </label>
-          </div>
-          <div className="flex gap-3">
-            {settings.enableNotifications && <Bell size={18} className="text-primary" />}
-          </div>
-        </header>
-
-        <section className="flex-1 overflow-y-auto p-4 relative">
-          {!activeMid && (
-            <div className="text-center mt-20 text-text-secondary text-sm">
-              请在左侧选择一个 UP 主，或点击设置添加
-            </div>
-          )}
-          
-          {ups.map(up => {
-            const upDynamics = dynamicsMap[up.mid] || [];
-            const isActive = activeMid === up.mid;
-            
-            return (
-              <div 
-                key={up.mid} 
-                style={{ display: isActive ? 'block' : 'none' }}
-                className="w-full"
+        <main className="flex-1 flex flex-col bg-main">
+          <header className="h-14 px-5 flex justify-between items-center bg-glass backdrop-blur-md border-b border-border z-10">
+            <div className="flex items-center">
+              <h2 className="text-[1.1rem] font-bold">
+                {activeUP ? `${activeUP.name} 的动态` : '请选择或添加 UP 主'}
+              </h2>
+              <button 
+                onClick={handleManualRefresh}
+                className="ml-3 p-1.5 rounded-full hover:bg-hover active:scale-95 transition"
+                title="手动刷新动态"
               >
-                {upDynamics.length > 0 ? (
-                  upDynamics.map(dyn => (
-                    <DynamicCard 
-                        key={dyn.id} 
-                        dynamic={dyn} 
-                        upName={up.name}
-                        onMarkRead={handleMarkRead}
-                        onlyShowUP={onlyShowUP}
-                    />
-                  ))
-                ) : (
-                  <div className="text-center mt-20 text-text-secondary text-sm">
-                    暂无动态，请检查设置并确保轮询已开启
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </section>
-      </main>
+                <RefreshCw size={16} />
+              </button>
+              <label className="ml-4 flex items-center gap-1.5 text-sm cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={onlyShowUP}
+                  onChange={(e) => setOnlyShowUP(e.target.checked)}
+                  className="w-3.5 h-3.5 accent-primary cursor-pointer"
+                />
+                <span className="text-text-secondary">只看UP</span>
+              </label>
+            </div>
+            <div className="flex gap-3">
+              {settings.enableNotifications && <Bell size={18} className="text-primary" />}
+            </div>
+          </header>
 
-      {isSettingsOpen && (
-        <SettingsPage onClose={() => {
-          setIsSettingsOpen(false);
-          setUps(getUPs());
-          setSettings(getSettings());
-          // Restart polling service to apply new settings immediately
-          pollingService.restart();
-        }} />
-      )}
-    </div>
+          <section className="flex-1 overflow-y-auto p-4 relative">
+            {!activeMid && (
+              <div className="text-center mt-20 text-text-secondary text-sm">
+                请在左侧选择一个 UP 主，或点击设置添加
+              </div>
+            )}
+            
+            {ups.map(up => {
+              const upDynamics = dynamicsMap[up.mid] || [];
+              const isActive = activeMid === up.mid;
+              
+              return (
+                <div 
+                  key={up.mid} 
+                  style={{ display: isActive ? 'block' : 'none' }}
+                  className="w-full"
+                >
+                  {upDynamics.length > 0 ? (
+                    upDynamics.map(dyn => (
+                      <DynamicCard 
+                          key={dyn.id} 
+                          dynamic={dyn} 
+                          upName={up.name}
+                          onMarkRead={handleMarkRead}
+                          onlyShowUP={onlyShowUP}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-center mt-20 text-text-secondary text-sm">
+                      暂无动态，请检查设置并确保轮询已开启
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </section>
+        </main>
+
+        {isSettingsOpen && (
+          <SettingsPage onClose={() => {
+            setIsSettingsOpen(false);
+            setUps(getUPs());
+            setSettings(getSettings());
+            // Restart polling service to apply new settings immediately
+            pollingService.restart();
+          }} />
+        )}
+      </div>
+      <Toaster />
+    </>
   );
 }
 

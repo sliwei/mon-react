@@ -3,6 +3,7 @@ import type { Settings, UP } from '../types';
 import { getSettings, saveSettings, getUPs, saveUPs } from '../lib/storage';
 import { searchUP } from '../lib/api';
 import { Trash2, Save, X, Loader2, Search } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface SettingsPageProps {
   onClose: () => void;
@@ -17,13 +18,13 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onClose }) => {
 
   const handleSaveSettings = () => {
     saveSettings(settings);
-    alert('设置已保存');
+    toast.success('设置已保存');
     onClose()
   };
 
   const handleSearch = async () => {
     if (!keyword || !settings.cookie) {
-      if (!settings.cookie) alert('请先设置 Cookie');
+      if (!settings.cookie) toast.error('请先设置 Cookie');
       return;
     }
     setLoading(true);
@@ -37,7 +38,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onClose }) => {
 
   const handleAddUP = (up: UP) => {
     if (ups.find(u => u.mid === up.mid)) {
-      alert('已在列表中');
+      toast.error('已在列表中');
       return;
     }
     const updatedUps = [...ups, up];
