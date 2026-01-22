@@ -20,7 +20,7 @@ const config = {
 };
 
 // 上传目标路径前缀
-const OSS_PREFIX = process.env.OSS_PREFIX || 'www/mon-react/live';
+const OSS_PREFIX = process.env.OSS_PREFIX || 'code/mon-react/live';
 
 // 本地 dist 目录
 const DIST_DIR = path.resolve(__dirname, '../dist');

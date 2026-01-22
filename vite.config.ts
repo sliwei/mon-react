@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/www/mon-react/live/',
+  base: 'https://i.bstu.cn/code/mon-react/live/',
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
