@@ -31,5 +31,5 @@ jobs:
           OSS_ACCESS_KEY_SECRET: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
           OSS_BUCKET: ${{ secrets.OSS_BUCKET }}
           OSS_REGION: ${{ secrets.OSS_REGION }}
-          OSS_PREFIX: www/mon-react/live
+          OSS_PREFIX: code/mon-react/live
         run: node scripts/upload-oss.mjs
