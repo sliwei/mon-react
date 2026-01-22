@@ -44,7 +44,6 @@ class PollingService {
 
   start() {
     const settings = getSettings();
-    console.log('settings', settings)
     
     // Dynamic Polling
     if (settings.enableDynamicPolling && settings.dynamicPollingInterval > 0) {

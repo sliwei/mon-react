@@ -17,6 +17,7 @@ function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (localStorage.getItem('theme') as 'light' | 'dark') || 'dark';
   });
+  const [onlyShowUP, setOnlyShowUP] = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -126,6 +127,15 @@ function App() {
             >
               <RefreshCw size={16} />
             </button>
+            <label className="ml-4 flex items-center gap-1.5 text-sm cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={onlyShowUP}
+                onChange={(e) => setOnlyShowUP(e.target.checked)}
+                className="w-3.5 h-3.5 accent-primary cursor-pointer"
+              />
+              <span className="text-text-secondary">只看UP</span>
+            </label>
           </div>
           <div className="flex gap-3">
             {settings.enableNotifications && <Bell size={18} className="text-primary" />}
@@ -156,6 +166,7 @@ function App() {
                         dynamic={dyn} 
                         upName={up.name}
                         onMarkRead={handleMarkRead}
+                        onlyShowUP={onlyShowUP}
                     />
                   ))
                 ) : (

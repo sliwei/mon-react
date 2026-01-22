@@ -25,7 +25,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   return (
     <aside className="w-60 bg-sidebar border-r border-border flex flex-col transition-all duration-300">
-      <div className="p-4 border-b border-border flex justify-between items-center">
+      <div className="px-3 h-14 border-b border-border flex justify-between items-center">
         <span className="text-lg font-bold text-primary">Bili Monitor</span>
         <div className="flex gap-1">
           <button onClick={onToggleTheme} title="Toggle Theme" className="p-1.5 hover:bg-hover rounded-md transition-colors text-text-secondary">

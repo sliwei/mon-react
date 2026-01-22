@@ -18,6 +18,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onClose }) => {
   const handleSaveSettings = () => {
     saveSettings(settings);
     alert('设置已保存');
+    onClose()
   };
 
   const handleSearch = async () => {
@@ -164,7 +165,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onClose }) => {
             </section>
           </div>
 
-          <button className="w-full py-2.5 bg-primary text-white rounded-lg font-semibold text-sm transition-all hover:opacity-90 active:scale-95 flex items-center justify-center gap-1.5 mb-8 shadow-lg shadow-primary/20" onClick={handleSaveSettings}>
+          <button className="w-full py-2.5 text-white! rounded-lg font-semibold text-sm transition-all hover:opacity-90 active:scale-95 bg-primary! flex items-center justify-center gap-1.5 mb-8 shadow-lg shadow-primary/20" onClick={handleSaveSettings}>
             <Save size={18} />
             保存所有配置
           </button>

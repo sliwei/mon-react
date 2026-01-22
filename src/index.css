@@ -27,7 +27,7 @@
   --border-color: rgba(255, 255, 255, 0.1);
   --hover-bg: rgba(255, 255, 255, 0.1);
   --glass-bg: rgba(26, 26, 26, 0.8);
-  --main-gradient: radial-gradient(circle at top left, #2a1a1f, #1a1a1a);
+  --main-gradient: radial-gradient(circle at top left, #000, #1a1a1a);
 }
 
 .light {
@@ -52,7 +52,7 @@
   --border-color: rgba(255, 255, 255, 0.1);
   --hover-bg: rgba(255, 255, 255, 0.1);
   --glass-bg: rgba(26, 26, 26, 0.8);
-  --main-gradient: radial-gradient(circle at top left, #2a1a1f, #1a1a1a);
+  --main-gradient: radial-gradient(circle at top left, #000, #1a1a1a);
 }
 
 * {
@@ -70,9 +70,7 @@ body {
 button {
   cursor: pointer;
   border: none;
-  background: none;
   font-family: inherit;
-  color: inherit;
 }
 
 input, textarea {

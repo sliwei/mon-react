@@ -9,9 +9,10 @@ interface DynamicCardProps {
   dynamic: DynamicContent;
   upName?: string;
   onMarkRead?: (id: string, isDynamic?: boolean) => void;
+  onlyShowUP?: boolean;
 }
 
-const DynamicCard: React.FC<DynamicCardProps> = ({ dynamic, upName, onMarkRead }) => {
+const DynamicCard: React.FC<DynamicCardProps> = ({ dynamic, upName, onMarkRead, onlyShowUP }) => {
   const [showComments, setShowComments] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
@@ -50,7 +51,7 @@ const DynamicCard: React.FC<DynamicCardProps> = ({ dynamic, upName, onMarkRead }
     <div className={`bg-card border rounded-xl mb-4 overflow-hidden transition-all duration-200 hover:-translate-y-0.5 shadow-sm ${
         isDynamicUnread ? 'border-primary/50 ring-1 ring-primary/20' : 'border-border'
     }`}>
-      <div className="px-4 py-2 border-b border-border text-[0.75rem] text-text-secondary flex justify-between bg-black/5 dark:bg-black/10">
+      <div className="px-4 py-2 border-b border-border text-[0.75rem] flex justify-between bg-black/5 dark:bg-black/10">
         <div className="flex items-center gap-2">
             <span>{formattedTime}</span>
             {isDynamicUnread && (
@@ -111,6 +112,7 @@ const DynamicCard: React.FC<DynamicCardProps> = ({ dynamic, upName, onMarkRead }
             comments={dynamic.comments} 
             upName={upName}
             onMarkRead={onMarkRead}
+            onlyShowUP={onlyShowUP}
         />
       )}
 
