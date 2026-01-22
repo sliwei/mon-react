@@ -140,7 +140,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onClose }) => {
                 {settings.enableCommentPolling && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
-                      <span className="text-xs text-text-secondary w-20">间隔 (分钟)</span>
+                      <span className="text-xs text-text-secondary w-24">间隔 (分钟)</span>
                       <input
                         type="number"
                         min="1"
@@ -150,7 +150,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onClose }) => {
                       />
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-xs text-text-secondary w-20">时间范围 (小时)</span>
+                      <span className="text-xs text-text-secondary w-24">时间范围 (小时)</span>
                       <input
                         type="number"
                         min="1"
@@ -162,6 +162,34 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onClose }) => {
                     </div>
                   </div>
                 )}
+              </div>
+            </section>
+
+            <section className="bg-card p-5 rounded-xl border border-border md:col-span-2">
+              <h3 className="text-base font-semibold mb-4 text-primary">钉钉 Webhook 通知</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block mb-1.5 text-[0.85rem] font-medium text-text-primary">Access Token</label>
+                  <input
+                    type="text"
+                    className="w-full p-2.5 bg-black/10 border border-border rounded-lg text-text-primary text-sm outline-none focus:border-primary transition-colors"
+                    value={settings.dingtalkAccessToken}
+                    onChange={(e) => setSettings({ ...settings, dingtalkAccessToken: e.target.value })}
+                    placeholder="留空则不发送钉钉通知"
+                  />
+                  <p className="text-[0.7rem] text-text-secondary mt-1">从钉钉机器人 Webhook URL 中获取</p>
+                </div>
+                <div>
+                  <label className="block mb-1.5 text-[0.85rem] font-medium text-text-primary">安全关键词</label>
+                  <input
+                    type="text"
+                    className="w-full p-2.5 bg-black/10 border border-border rounded-lg text-text-primary text-sm outline-none focus:border-primary transition-colors"
+                    value={settings.dingtalkKeyword}
+                    onChange={(e) => setSettings({ ...settings, dingtalkKeyword: e.target.value })}
+                    placeholder="动态"
+                  />
+                  <p className="text-[0.7rem] text-text-secondary mt-1">钉钉机器人安全设置中配置的关键词</p>
+                </div>
               </div>
             </section>
           </div>

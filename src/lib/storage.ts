@@ -17,6 +17,8 @@ const DEFAULT_SETTINGS: Settings = {
   enableCommentPolling: false,
   commentPollingInterval: 5, // 5 minutes
   commentTimeRange: 48, // 48 hours
+  dingtalkAccessToken: '',
+  dingtalkKeyword: '动态',
 };
 
 export const getSettings = (): Settings => {

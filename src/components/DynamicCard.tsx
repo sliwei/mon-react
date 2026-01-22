@@ -96,13 +96,14 @@ const DynamicCard: React.FC<DynamicCardProps> = ({ dynamic, upName, onMarkRead, 
             </div>
           </div>
         )}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 flex flex-col">
           <h3 
             className={`text-base font-semibold mb-2 text-text-primary line-clamp-1 cursor-pointer hover:text-primary transition-colors ${isDynamicUnread ? 'text-primary' : ''}`}
             onClick={handleTitleClick}
           >
             {dynamic.title || dynamic.description}
           </h3>
+          <div onClick={() => setShowComments(!showComments)} className='cursor-pointer flex-1'></div>
         </div>
       </div>
       {showComments && (

@@ -102,6 +102,12 @@ function App() {
     return counts;
   }, [dynamicsMap, ups]);
 
+  // 更新浏览器标签页标题显示未读消息数
+  useEffect(() => {
+    const totalUnread = Object.values(unreadCounts).reduce((sum, count) => sum + count, 0);
+    document.title = totalUnread > 0 ? `(${totalUnread}) Bili Monitor` : 'Bili Monitor';
+  }, [unreadCounts]);
+
   return (
     <>
       <div className="flex h-screen w-screen bg-bg text-text-primary overflow-hidden">

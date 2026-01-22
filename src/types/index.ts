@@ -15,6 +15,9 @@ export interface Settings {
   enableCommentPolling: boolean;
   commentPollingInterval: number; // in minutes
   commentTimeRange: number; // in hours, determines how far back to fetch comments for dynamics
+  // DingTalk webhook settings
+  dingtalkAccessToken: string;
+  dingtalkKeyword: string;
 }
 
 
